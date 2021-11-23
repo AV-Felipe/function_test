@@ -36,9 +36,29 @@ const mainContent =
   na <a href="https://www.worldwildlife.org/species/elephant" target="_blank">WWF</a>.
 </p>`;
 
-headerElement.addEventListener('load', loadContent(headerContent, headerElement));
+/* 
+!!não existe um evento load para o tipo de objeto element - ver: https://developer.mozilla.org/en-US/docs/Web/Events !!
 
+temos, no entanto, o evento load para o objeto window, que é o evento que indica que todos os elementos da página foram carregados
+com sucesso - ver: https://developer.mozilla.org/en-US/docs/Web/API/Window/load_event
+
+headerElement.addEventListener('load', loadContent(headerContent, headerElement));
 mainElement.addEventListener('load', loadContent(mainContent, mainElement));
+
+Ambas as expressões acima estão completamente erradas, o método addEventListener retorna um objeto event para uma função que trata o
+fluxo baseada nesse objeto, dessa forma não podemos definir qulquer função, mas essa deve ser um event handler que pode, entre outras coisas,
+invocar outra função qualquer. Mais gritante, no entanto, é que o evento load não existe para objetos do tipo element, de forma que,
+se arrumanda a função eventHandler, passaremos a não ter qualquer retorno, pois nunca teremos a ocorrência do evento em questão.
+*/
+/*
+a função invocada deve tratar o recebimento de um objeto do tipo event, por exemplo chamando uma função específica se o objeto existir
+que é o nosso caso, mas o objeto event é muito rico em informações, possuindo informações sobre como o evento ocorreu, o que
+possibilita tratar a reação da função com base nesses dados - ver: https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#the_event_listener_callback
+*/
+/* para uma aula geral ver: https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events */
+window.addEventListener('load', () => {loadContent(headerContent, headerElement)});
+
+window.addEventListener('load', () => {loadContent(mainContent, mainElement)});
 
 function loadContent (content, tag) {
   tag.innerHTML = content;
@@ -46,7 +66,7 @@ function loadContent (content, tag) {
 
 /*ASSIDE */
 
-assideButton.addEventListener('click', function(){findMyDaemon(personYear.value)});
+assideButton.addEventListener('click', findMyDaemon);
 
 const mouse = ['assets/images/asside-images/rato.jpg', 1924, 1936, 1948, 1960, 1972, 1984, 1996, 2008, 2020];
 const ox = ['assets/images/asside-images/boi.jpg', 1913, 1925, 1937, 1949, 1961, 1973, 1985, 1997, 2009, 2021];
@@ -63,7 +83,10 @@ const pig = ['assets/images/asside-images/porco.jpg', 1935, 1947, 1959, 1971, 19
 
 const zodiac = [mouse, ox, tiger, rabit, dragon, snake, horse, sheep, monkey, rooster, dog, pig];
 
-function findMyDaemon (year) {
+function findMyDaemon () {
+
+  const year = personYear.value;
+
   console.log(year);
   
   zodiac.map(animal => {
